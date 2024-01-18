@@ -4,16 +4,23 @@
 
 #define HELP_INFO \
 "Usage instructions:\n\n" \
-"1) To encode text using the Caesar cipher:\n" \
+"1) To encode or decode text using the Caesar cipher from a file:\n" \
 "   Run: ./main <shift> <file_name>\n" \
-"   Example: ./main \"3\" str.txt\n\n" \
-"2) To decode text using the Caesar cipher:\n" \
+"   Example: ./main 3 str.txt\n\n" \
+"2) To decode text using the Caesar cipher from a file:\n" \
 "   Run: ./main -<shift> <file_name>\n" \
-"   Example: ./main \"-3\" str.txt\n\n" \
-"Attention: \n\n" \
+"   Example: ./main -3 str.txt\n\n" \
+"3) To encode or decode text using the Caesar cipher from standard input:\n" \
+"   Run: ./main <shift>\n" \
+"   After running the command, type your text and press Enter.\n" \
+"   Example: ./main 3\n" \
+"   abc\n" \
+"   def\n" \
+"\nAttention: \n\n" \
 "The shift must be an integer!\n" \
 "To decode use the same number as for " \
-"encode, but negative.\n" \
+"encode, but negative.\n"
+
 
 void printHelpInfo()
 {
@@ -33,7 +40,7 @@ int parseShift(int shift, char *argv)
 
     for(args = argv; *args != '\0'; ++args) {
         if(((int)*args - (int)'0') < 0 || ((int)*args - (int)'0') > 9) {
-            fprintf(stderr, "Shift is not a digit!\n\n");
+            fprintf(stderr, "Shift is not a digit!\n");
             printHelpInfo();
             exit(3);
         }
@@ -81,7 +88,7 @@ void encoderCaesar(FILE *f, int shift)
             if((outOfASCII >= 127 || outOfASCII <= 31)) {
                 if((((int)fbuffer[i]+shift)) >= 127) {
                     fputc((char)((((int)fbuffer[i]+shift) % 127) + 32), f);
-                } else if ((((int)fbuffer[i]+shift)) <= 31 && ((int)fbuffer[i]) != 10) {
+                } else if ((((int)fbuffer[i]+shift)) <= 31 && ((int)fbuffer[i]) != 10 && ((int)fbuffer[i]) != 10) {
                     fputc((char)((((int)fbuffer[i]+shift) % 127) + 95), f);
                 }
             } else {
@@ -98,12 +105,15 @@ int main(int argc, char *argv[])
     int shift = 0;
     FILE *f;
 
-    if(strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0) {
-        printHelpInfo();
-    } else if(argc < 2) {
+    if(argc < 2) {
         fprintf(stderr, "Too few arguments!\n");
         printHelpInfo();
         exit(1);
+    }
+
+    if(strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0) {
+        printHelpInfo();
+        exit(0);
     }
     
     if (argc == 3) {

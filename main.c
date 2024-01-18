@@ -59,21 +59,30 @@ void encoderCaesar(FILE *f, int shift)
 {
     char fbuffer[256];
     int currentChar = 0;
+    int isStdIn = (f == stdin);
+
+    if(isStdIn) {
+        printf("Please write below what you want to be shifted:\n");
+    }
 
     while(fgets(fbuffer, sizeof(fbuffer), f)) {
         for(int i = 0; fbuffer[i] ; i++) {
+            // Handle standart input stream method
+            if(isStdIn) {
+                f = stdout;
+            }
             fseek(f, currentChar, SEEK_SET); // set cursor
 
             // Our working ASCII range is between 31 and 126. If the character  
             // falls outside this range, the next part of the code will handle it.
-            int outOfASCII = ((int)fbuffer[i]+shift); 
+            int outOfASCII = ((int)fbuffer[i]+shift);
 
             // Processing non-printable ASCII characters
             if((outOfASCII >= 127 || outOfASCII <= 31)) {
                 if((((int)fbuffer[i]+shift)) >= 127) {
                     fputc((char)((((int)fbuffer[i]+shift) % 127) + 32), f);
-                } else if ((((int)fbuffer[i]+shift)) <= 31) {
-                    fputc((char)((((int)fbuffer[i]+shift) % 127) + 95), f); 
+                } else if ((((int)fbuffer[i]+shift)) <= 31 && ((int)fbuffer[i]) != 10) {
+                    fputc((char)((((int)fbuffer[i]+shift) % 127) + 95), f);
                 }
             } else {
                 fputc((char)((int)fbuffer[i]+shift), f);
@@ -91,12 +100,12 @@ int main(int argc, char *argv[])
 
     if(strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0) {
         printHelpInfo();
-    } else if(argc < 3) {
+    } else if(argc < 2) {
         fprintf(stderr, "Too few arguments!\n");
         printHelpInfo();
         exit(1);
     }
-
+    
     if (argc == 3) {
         // check if shift is a digit and convert char -> integer
         shift = parseShift(shift, argv[1]);
@@ -110,10 +119,21 @@ int main(int argc, char *argv[])
 
         encoderCaesar(f, shift);
         fclose(f);
+    } else if (argc == 2) {
+        // check if shift is a digit and convert char -> integer
+        shift = parseShift(shift, argv[1]);
+
+        f = stdin;
+
+        if(!f) {
+            fprintf(stderr, "Unable to open standart input stream!\n");
+            exit(4);
+        }
+
+        encoderCaesar(f, shift);
+
+        printf("\n\n");
     }
 
     return 0;
 }
-
-// In the future, add an options:
-//     to read from stdin, then encode/decode it and put to stdout

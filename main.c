@@ -88,7 +88,7 @@ void encoderCaesar(FILE *f, int shift)
             if((outOfASCII >= 127 || outOfASCII <= 31)) {
                 if((((int)fbuffer[i]+shift)) >= 127) {
                     fputc((char)((((int)fbuffer[i]+shift) % 127) + 32), f);
-                } else if ((((int)fbuffer[i]+shift)) <= 31 && ((int)fbuffer[i]) != 10 && ((int)fbuffer[i]) != 10) {
+                } else if ((((int)fbuffer[i]+shift)) <= 31 && ((int)fbuffer[i]) != 10) {
                     fputc((char)((((int)fbuffer[i]+shift) % 127) + 95), f);
                 }
             } else {
